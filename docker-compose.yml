@@ -1,0 +1,46 @@
+services:
+  boids:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BOIDS_UID: ${BOIDS_UID:-1000}
+        BOIDS_GID: ${BOIDS_GID:-1000}
+        BOIDS_USER: ${BOIDS_USER:-jerry}
+
+    image: boids-c:latest
+    container_name: boids-c
+
+    user: "${BOIDS_UID:-1000}:${BOIDS_GID:-1000}"
+
+    working_dir: /workspace
+
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+
+      # Useful for Mesa/Intel/AMD paths.
+      LIBGL_ALWAYS_SOFTWARE: "0"
+
+      # Keep these only if your Debian desktop has NVIDIA drivers
+      # and nvidia-container-toolkit working.
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      __GLX_VENDOR_LIBRARY_NAME: nvidia
+
+    volumes:
+      - ./:/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+    # For Intel/AMD Mesa direct rendering.
+    devices:
+      - /dev/dri:/dev/dri
+
+    # Keep this only if NVIDIA container GPU access works on the host.
+    # Test with:
+    # docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
+    gpus: all
+
+    stdin_open: true
+    tty: true
+
+    command: bash

@@ -6,8 +6,7 @@ ARG BOIDS_USER=jerry
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Basic development tools, X11/OpenGL tools, CMake, Git,
-# and Raylib build/runtime dependencies.
+# Basic C development tools, GitHub CLI, and raylib build dependencies.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -16,16 +15,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     pkg-config \
     git \
+    gh \
     ca-certificates \
     bash \
     nano \
     less \
     procps \
     xauth \
-    x11-apps \
-    mesa-utils \
     libgl1 \
-    libglx-mesa0 \
+    libglvnd0 \
+    libglx0 \
     libglu1-mesa \
     libx11-6 \
     libx11-dev \
@@ -37,7 +36,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxfixes-dev \
     libxrender-dev \
     libxxf86vm-dev \
-    libgl1-mesa-dev \
+    libgl-dev \
+    libegl-dev \
+    libgles-dev \
     libglu1-mesa-dev \
     libasound2-dev \
     libopenal-dev \
@@ -46,11 +47,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Build and install raylib from source.
-# This gives pkg-config support for your CMakeLists.txt.
+# Build and install raylib statically.
+# This lets the boids executable run on the host without needing libraylib.so.600.
 RUN git clone --depth 1 --branch 6.0 https://github.com/raysan5/raylib.git /tmp/raylib \
     && cmake -S /tmp/raylib -B /tmp/raylib/build \
-        -DBUILD_SHARED_LIBS=ON \
+        -DBUILD_SHARED_LIBS=OFF \
         -DBUILD_EXAMPLES=OFF \
     && cmake --build /tmp/raylib/build --parallel \
     && cmake --install /tmp/raylib/build \
@@ -63,7 +64,6 @@ RUN git clone --depth 1 https://github.com/raysan5/raygui.git /tmp/raygui \
     && rm -rf /tmp/raygui
 
 # Create or reuse a normal user matching the host UID/GID.
-# This avoids failing if UID/GID 1000 already exists in the base image.
 RUN set -eux; \
     if getent group "${BOIDS_GID}" >/dev/null; then \
         GROUP_NAME="$(getent group "${BOIDS_GID}" | cut -d: -f1)"; \

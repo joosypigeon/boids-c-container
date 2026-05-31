@@ -1,0 +1,3 @@
+[submodule "boids-c"]
+	path = boids-c
+	url = https://github.com/joosypigeon/boids-c.git

@@ -1,0 +1,16 @@
+{
+  "name": "Boids C Container",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "boids",
+  "workspaceFolder": "/workspace/boids-c",
+  "shutdownAction": "none",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}
